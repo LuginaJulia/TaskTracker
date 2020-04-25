@@ -8,6 +8,8 @@ import VeeValidate from 'vee-validate';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {
+  faPlus,
+  faList,
   faHome,
   faUser,
   faUserPlus,
@@ -15,7 +17,7 @@ import {
   faSignOutAlt
 } from '@fortawesome/free-solid-svg-icons';
 
-library.add(faHome, faUser, faUserPlus, faSignInAlt, faSignOutAlt);
+library.add(faHome, faUser, faUserPlus, faSignInAlt, faSignOutAlt, faPlus, faList);
 
 Vue.config.productionTip = false;
 
@@ -27,3 +29,4 @@ new Vue({
   store,
   render: h => h(App)
 }).$mount('#app');
+

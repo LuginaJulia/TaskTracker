@@ -63,7 +63,7 @@
 
 <script>
 
-import TaskDataService from "../services/TaskDataService";
+import TaskDataService from "../services/task.service";
 import moment from 'moment';
 export default {
   name: "tasks-list",
