@@ -10,7 +10,7 @@
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link v-if="currentUser" to="/add" class="nav-link">
+            <router-link v-if="currentUser" to="/tasks/new" class="nav-link">
               <font-awesome-icon icon="plus" /> New task
             </router-link>
           </li>

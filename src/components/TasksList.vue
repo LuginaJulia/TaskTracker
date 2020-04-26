@@ -1,5 +1,13 @@
 <template>
   <div class="list row">
+    <div
+      v-if="message"
+      class="alert"
+      :class="successful ? 'alert-success' : 'alert-danger'"
+    >
+    {{message}}
+    <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    </div>
     <div class="col-md-12">
       <button class="m-3 btn btn-sm btn-success" @click="executedTasks">
         Executed tasks
@@ -65,18 +73,20 @@
 
 import TaskDataService from "../services/task.service";
 import moment from 'moment';
+
 export default {
   name: "tasks-list",
   data: () => ({
     tasks: [],
     name: "",
+    message: "",
+    successful: ""
   }),
   methods: {
     retrieveTasks() {
       TaskDataService.getAll()
         .then(response => {
           this.tasks = response.data;
-          console.log(response.data);
         })
         .catch(e => {
           console.log(e);
@@ -88,21 +98,22 @@ export default {
     },
 
     removeAllTasks() {
-      TaskDataService.deleteAll()
-        .then(response => {
-          console.log(response.data);
-          this.refreshList();
-        })
-        .catch(e => {
-          console.log(e);
-        });
+      TaskDataService.deleteAll().then(
+        () => { this.refreshList(); },
+        error => {
+          this.message =
+            (error.response && error.response.data.message) ||
+            error.message ||
+            error.toString();
+          this.successful = false;
+        }
+      )
     },
     
     executedTasks() {
       TaskDataService.findExecuted()
         .then(response => {
           this.tasks = response.data;
-          console.log(response.data);
         })
         .catch(e => {
           console.log(e);
@@ -113,7 +124,6 @@ export default {
       TaskDataService.findUnexecuted()
         .then(response => {
           this.tasks = response.data;
-          console.log(response.data);
         })
         .catch(e => {
           console.log(e);
@@ -128,7 +138,6 @@ export default {
       TaskDataService.findByTitle(this.name)
         .then(response => {
           this.tasks = response.data;
-          console.log(response.data);
         })
         .catch(e => {
           console.log(e);
@@ -136,40 +145,48 @@ export default {
     },
 
     deleteTask(task) {
-      TaskDataService.delete(task.id)
-        .then(response => {
-          console.log(response.data);
-          this.refreshList();
-        })
-        .catch(e => {
-          console.log(e);
-        });
+      TaskDataService.delete(task.id).then(
+        () => { this.refreshList(); },
+        error => {
+          this.message =
+            (error.response && error.response.data.message) ||
+            error.message ||
+            error.toString();
+          this.successful = false;
+        }
+      )
     },
 
     dateFormat(date){
-      return moment(date).format("Do MMMM YYYY");
+      return (date) ? moment(date).format("Do MMMM YYYY") : '-';
     },
 
     reversed(task) {
-      TaskDataService.update(task.id, { status: false })
-        .then(response => {
-          console.log(response.data);
-          this.refreshList();
-        })
-        .catch(e => {
-          console.log(e);
-        });
+      task.status = false;
+      this.$store.dispatch('task/update', task).then(
+        () => { this.refreshList(); },
+        error => {
+          this.message =
+            (error.response && error.response.data.message) ||
+            error.message ||
+            error.toString();
+          this.successful = false;
+        }
+      )
     },
 
     checked(task) {
-      TaskDataService.update(task.id, { status: true })
-        .then(response => {
-          console.log(response.data);
-          this.refreshList();
-        })
-        .catch(e => {
-          console.log(e);
-        });
+      task.status = true;
+      this.$store.dispatch('task/update', task).then(
+        () => { this.refreshList(); },
+        error => {
+          this.message =
+            (error.response && error.response.data.message) ||
+            error.message ||
+            error.toString();
+          this.successful = false;
+        }
+      )
     }
   },
   mounted() {

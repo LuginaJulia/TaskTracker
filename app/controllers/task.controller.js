@@ -23,7 +23,7 @@ exports.create = (req, res) => {
   // Save Task in the database
   Task.create(task)
     .then(data => {
-      res.send(data);
+      res.status(200).send(data);
     })
     .catch(err => {
       res.status(500).send({
@@ -89,26 +89,33 @@ exports.findOne = (req, res) => {
 
 // Update a Task by the id in the request
 exports.update = (req, res) => {
-    const id = req.params.id;
-    Task.update(req.body, {
-      where: { id: id }
-    })
-      .then(num => {
-        if (num == 1) {
-          res.send({
-            message: "Task was updated successfully."
-          });
-        } else {
-          res.send({
-            message: `Cannot update Task with id=${id}. Maybe Task was not found or req.body is empty!`
-          });
-        }
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Error updating Task with id=" + id
+  if (!req.body.name) {
+    res.status(400).send({
+      message: "Title can not be empty!"
+    });
+    return;
+  };
+
+  const id = req.params.id;
+  Task.update(req.body, { where: { id: id } })
+  .then(
+    num => {
+      if (num == 1) {
+        res.send({
+          message: "Task was updated successfully."
         });
-      });
+      } else {
+        res.send({
+          message: `Cannot update Task with id=${id}. Maybe Task was not found or req.body is empty!`
+        });
+      }
+    }
+  )
+  .catch(err => {
+    res.status(500).send({
+      message: "Error updating Task with id=" + id
+    });
+  });
 };
 
 // Delete a Task with the specified id in the request
