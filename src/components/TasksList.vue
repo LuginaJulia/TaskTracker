@@ -73,6 +73,7 @@
 
 import TaskDataService from "../services/task.service";
 import moment from 'moment';
+import { EventBus } from '../main';
 
 export default {
   name: "tasks-list",
@@ -82,15 +83,27 @@ export default {
     message: "",
     successful: ""
   }),
+  // sockets: {
+  //   connect: function () {
+  //     console.log('socket connected')
+  //   },
+  //   customEmit: function () {
+  //     console.log('this method was fired by the socket server. eg: io.emit("customEmit", data)')
+  //   }
+  // },
+  // sockets:{
+  //   connect() {
+  //     console.log("socket connected...")
+  //   },
+  //   disconnected() {
+  //     console.log("socket disconnected...")
+  //   }
+  // },
   methods: {
     retrieveTasks() {
-      TaskDataService.getAll()
-        .then(response => {
-          this.tasks = response.data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
+      console.log('taskList');
+      console.log(EventBus);
+      TaskDataService.getAll(this.$socket);
     },
 
     refreshList() {
@@ -111,23 +124,11 @@ export default {
     },
     
     executedTasks() {
-      TaskDataService.findExecuted()
-        .then(response => {
-          this.tasks = response.data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
+      TaskDataService.findExecuted(this.$socket);
     },
 
     unexecutedTasks() {
-      TaskDataService.findUnexecuted()
-        .then(response => {
-          this.tasks = response.data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
+      TaskDataService.findUnexecuted(this.$socket);
     },
     
     allTasks() {
@@ -191,6 +192,7 @@ export default {
   },
   mounted() {
     this.retrieveTasks();
+    
   }
 };
 </script>

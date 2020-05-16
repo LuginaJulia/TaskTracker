@@ -2,12 +2,19 @@ import http from "../http-common";
 import authHeader from "./auth-header";
 
 class TaskDataService {
-  getAll() {
-    return http.get('/tasks');
+  getAll(socket) {
+    socket.client.emit("tasks_all", { filter: '' });
+    socket.$subscribe('tasksList', function(response) {
+      this.tasks = response.data;
+    });
   }
 
-  get(id) {
-    return http.get(`/tasks/${id}`, { headers: authHeader() });
+  get(id, socket) {
+    socket.client.emit("task", { id: id });
+    // socket.$subscribe('taskForm', function(response) {
+    //   this.task = response.data;
+    // });
+    //return http.get(`/tasks/${id}`, { headers: authHeader() });
   }
 
   create(data) {
@@ -26,12 +33,18 @@ class TaskDataService {
     return http.delete(`/tasks`, { headers: authHeader() });
   }
 
-  findExecuted() {
-    return http.get('/tasks/executed');
+  findExecuted(socket) {
+    socket.client.emit('tasks_all', { filter: 'executed' });
+    socket.$subscribe('tasksList', function(response) {
+      this.tasks = response.data;
+    });
   }
 
-  findUnexecuted() {
-    return http.get('/tasks/unexecuted');
+  findUnexecuted(socket) {
+    socket.client.emit('tasks_all', { filter: 'unexecuted' });
+    socket.$subscribe('tasksList', function(response) {
+      this.tasks = response.data;
+    });
   }
 }
 

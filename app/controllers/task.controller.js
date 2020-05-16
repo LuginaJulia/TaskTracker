@@ -34,57 +34,47 @@ exports.create = (req, res) => {
 };
 
 // Retrieve all Tasks from the database.
-exports.findAll = (req, res) => {
-  Task.findAll()
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving tasks."
-      });
-    });
+exports.findAll = () => {
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      Task.findAll()
+        .then(data => { return { data: data } })
+        .catch(err => { return { error: err.message || "Some error occurred while retrieving tasks." } }) 
+    );}
+  });
 };
 
-exports.findExecuted = (req, res) => {
-  Task.findAll({ where: { status: true } })
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving tasks."
-      });
-    });
+exports.findExecuted = () => {
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      Task.findAll({ where: { status: true } })
+        .then(data => { return { data: data } })
+        .catch(err => { return { error: err.message || "Some error occurred while retrieving tasks." } }) 
+    );}
+  });
 };
-exports.findUnexecuted = (req, res) => {
-  Task.findAll({ where: { status: false } })
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving tasks."
-      });
-    });
+
+exports.findUnexecuted = () => {
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      Task.findAll({ where: { status: false } })
+        .then(data => { return { data: data } })
+        .catch(err => { return { error: err.message || "Some error occurred while retrieving tasks." } }) 
+    );}
+  });
 };
 
 // Find a single Task with an id
-exports.findOne = (req, res) => {
-    const id = req.params.id;
-
-    Task.findByPk(id)
-      .then(data => {
-        res.send(data);
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Error retrieving Task with id=" + id
-        });
-      });
+exports.findOne = (params) => {
+    console.log(params);
+    const id = params.id;
+    return Promise.resolve({ 
+      then: function(onFulfill, onReject) { onFulfill(
+        Task.findByPk(id)
+          .then(data => { return { data: data } })
+          .catch(err => { return { error: "Error retrieving Task with id=" + id } }) 
+      );}
+    });
 };
 
 // Update a Task by the id in the request

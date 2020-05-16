@@ -31,22 +31,16 @@ export const task = {
         }
       );
     },
-    find({ commit }, id) {
-      return TaskService.get(id).then(
-        response => {
-          commit('findSuccess', response.data);
-          return Promise.resolve(response.data);
-        },
-        error => {
-          commit('findFailure');
-          return Promise.reject(error);
-        }
-      )
+    find({ commit }, { socket, id }) {
+      TaskService.get(id, socket);
+      socket.$subscribe('taskForm', function(response) {
+        commit('findSuccess', response.data);
+        Promise.resolve(response.data);
+      });
     }
   },
   mutations: {
     findSuccess(state, task) {
-      console.log(task);
       state.status.success = true;
       state.task = new Task({ 
         id: task.id, 
@@ -55,6 +49,7 @@ export const task = {
         file: task.file, 
         date: task.date, 
         status: task.status });
+      console.log('success');
     },
     findFailure(state) {
       state.status.success = false;

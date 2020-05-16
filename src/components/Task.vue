@@ -81,11 +81,14 @@ export default {
   }),
   methods: {
     getTask(id) {
-      this.$store.dispatch('task/find', id).then(
-        () => {
+      let socket = this.$socket;
+      this.$store.dispatch('task/find', { socket, id} ).then(
+         async () => {
+          await new Promise(r => setTimeout(r, 100));
           this.task = this.$store.state.task.task;
         },
-        error => {
+        async error => {
+          await new Promise(r => setTimeout(r, 100));
           this.message =
             (error.response && error.response.data.message) ||
             error.message ||
