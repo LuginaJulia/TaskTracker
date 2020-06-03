@@ -22,6 +22,11 @@ library.add(faHome, faUser, faUserPlus, faSignInAlt, faSignOutAlt, faPlus, faLis
 Vue.config.productionTip = false;
 
 Vue.use(VeeValidate);
+import VueSocketio from 'vue-socket.io-extended';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:3000');
+Vue.use(VueSocketio, socket);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 new Vue({

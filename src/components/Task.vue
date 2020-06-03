@@ -81,36 +81,17 @@ export default {
   }),
   methods: {
     getTask(id) {
-      this.$store.dispatch('task/find', id).then(
-        () => {
-          this.task = this.$store.state.task.task;
-        },
-        error => {
-          this.message =
-            (error.response && error.response.data.message) ||
-            error.message ||
-            error.toString();
-          this.successful = false;
-        }
-      )
+      let socket = this.$socket;
+      this.$store.dispatch('task/find', { socket, id });
     },
 
     saveTask() {
       this.submitted = true;
       this.$validator.validate().then(isValid => {
         if (isValid) {
-          this.$store.dispatch('task/create', this.task).then(
-            () => {
-              this.$router.push('/tasks');
-            },
-            error => {
-              this.message =
-                (error.response && error.response.data.message) ||
-                error.message ||
-                error.toString();
-              this.successful = false;
-            }
-          )
+          let socket = this.$socket;
+          let task = this.task;
+          this.$store.dispatch('task/create', { socket, task });
         }
       })
     },
@@ -119,18 +100,9 @@ export default {
       this.submitted = true;
       this.$validator.validate().then(isValid => {
         if (isValid) {
-          this.$store.dispatch('task/update', this.task).then(
-            () => {
-              this.$router.push('/tasks');
-            },
-            error => {
-              this.message =
-                (error.response && error.response.data.message) ||
-                error.message ||
-                error.toString();
-              this.successful = false;
-            }
-          )
+          let socket = this.$socket;
+          let task = this.task;
+          this.$store.dispatch('task/update', { socket, task });
         }
       })
     },
@@ -147,7 +119,6 @@ export default {
       var vm = this.task;
 
       reader.onload = (e) => {
-        console.log(e);
         vm.file = e.target.result;
       };
       reader.readAsDataURL(file);
@@ -155,6 +126,17 @@ export default {
 
     removeImage: function () {
       this.task.file = '';
+    }
+  },
+
+  sockets: {
+    executed: function(response) {
+      this.successful = (response.status == 200);
+      this.successful ? this.$router.push('/tasks') : this.message = response.message;
+    },
+    task: function(response) {
+      this.successful = (response.status == 200);
+      this.successful ? this.task = response.data : this.message = response.message;
     }
   },
   mounted() {

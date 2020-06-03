@@ -5,10 +5,9 @@ const Task = db.tasks;
 exports.create = (req, res) => {
   // Validate request
   if (!req.body.name) {
-    res.status(400).send({
-      message: "Title can not be empty!"
+    return Promise.resolve({ 
+      message: "Title can not be empty!", status: 400
     });
-    return;
   };
 
   // Create a Task
@@ -19,143 +18,96 @@ exports.create = (req, res) => {
     date: req.body.date,
     status: req.body.status ? req.body.status : false
   };
-
+  
   // Save Task in the database
-  Task.create(task)
-    .then(data => {
-      res.status(200).send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while creating the Task."
-      });
-    });  
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      Task.create(task)
+        .then(() => { return { message: "Task was created.", status: 200 } })
+        .catch(err => { return { message: err.message || "Some error occurred while retrieving tasks.", status: 400 } }) 
+    );}
+  });
 };
 
 // Retrieve all Tasks from the database.
-exports.findAll = (req, res) => {
-  Task.findAll()
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving tasks."
-      });
-    });
+exports.findAll = () => {
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      Task.findAll()
+        .then(data => { return { status: 200, data: data } })
+        .catch(err => { return { status: err.status || 400, message: err.message || "Some error occurred while retrieving tasks." } }) 
+    );}
+  });
 };
 
-exports.findExecuted = (req, res) => {
-  Task.findAll({ where: { status: true } })
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving tasks."
-      });
-    });
+exports.findExecuted = () => {
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      Task.findAll({ where: { status: true } })
+      .then(data => { return { status: 200, data: data } })
+      .catch(err => { return { status: err.status || 400, message: err.message || "Some error occurred while retrieving tasks." } }) 
+    );}
+  });
 };
-exports.findUnexecuted = (req, res) => {
-  Task.findAll({ where: { status: false } })
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving tasks."
-      });
-    });
+
+exports.findUnexecuted = () => {
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      Task.findAll({ where: { status: false } })
+        .then(data => { return { status: 200, data: data } })
+        .catch(err => { return { status: err.status || 400, message: err.message || "Some error occurred while retrieving tasks." } }) 
+    );}
+  });
 };
 
 // Find a single Task with an id
-exports.findOne = (req, res) => {
-    const id = req.params.id;
-
-    Task.findByPk(id)
-      .then(data => {
-        res.send(data);
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Error retrieving Task with id=" + id
-        });
-      });
+exports.findOne = (params) => {
+  const id = params.id;
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      Task.findByPk(id)
+        .then(data => { return data ? { status: 200, data: data } : { status: 400, message: "Error retrieving Task with id=" + id }})
+        .catch(err => { return { status: err.status || 400, message: err.message || "Error retrieving Task with id=" + id } }) 
+    );}
+  });
 };
 
 // Update a Task by the id in the request
 exports.update = (req, res) => {
   if (!req.body.name) {
-    res.status(400).send({
-      message: "Title can not be empty!"
+    return Promise.resolve({ 
+      message: "Title can not be empty!", status: 400
     });
-    return;
   };
 
-  const id = req.params.id;
-  Task.update(req.body, { where: { id: id } })
-  .then(
-    num => {
-      if (num == 1) {
-        res.send({
-          message: "Task was updated successfully."
-        });
-      } else {
-        res.send({
-          message: `Cannot update Task with id=${id}. Maybe Task was not found or req.body is empty!`
-        });
-      }
-    }
-  )
-  .catch(err => {
-    res.status(500).send({
-      message: "Error updating Task with id=" + id
-    });
+  const id = req.body.id;
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      Task.update(req.body, { where: { id: id } })
+        .then(() => { return { message: "Task was updated.", status: 200 } })
+        .catch(err => { return { message: err.message || "Some error occurred while retrieving tasks.", status: 400 } }) 
+    );}
   });
 };
 
 // Delete a Task with the specified id in the request
-exports.delete = (req, res) => {
-  const id = req.params.id;
-  Task.destroy({
-    where: { id: id }
-  })
-    .then(num => {
-      if (num == 1) {
-        res.send({
-          message: "Task was deleted successfully!"
-        });
-      } else {
-        res.send({
-          message: `Cannot delete Task with id=${id}. Maybe Task was not found!`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message: "Could not delete Task with id=" + id
-      });
-    });
+exports.delete = (id) => {
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      Task.destroy({ where: { id: id } })
+        .then(() => { return { status: 200, message: "Task was deleted." } })
+        .catch(err => { return { status: err.status || 400, message: err.message || "Some error occurred while retrieving tasks." } }) 
+    );}
+  });
 };
 
 // Delete all Tasks from the database.
-exports.deleteAll = (req, res) => {
-  console.log('deleteAllContr');
-  Task.destroy({
-      where: {},
-      truncate: false
-    })
-      .then(nums => {
-        res.send({ message: `${nums} Tasks were deleted successfully!` });
-      })
-      .catch(err => {
-        res.status(500).send({
-          message:
-            err.message || "Some error occurred while removing all tasks."
-        });
-      });
+exports.deleteAll = () => {
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      Task.destroy({ where: {}, truncate: false })
+        .then(() => { return { status: 200, message: "Task was deleted." } })
+        .catch(err => { return { status: err.status || 400, message: err.message || "Some error occurred while retrieving tasks." } }) 
+    );}
+  });
 };

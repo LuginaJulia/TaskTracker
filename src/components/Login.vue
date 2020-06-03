@@ -38,8 +38,7 @@
           >Password is required!</div>
         </div>
         <div class="form-group">
-          <button class="btn btn-primary btn-block" :disabled="loading">
-            <span v-show="loading" class="spinner-border spinner-border-sm"></span>
+          <button class="btn btn-primary btn-block">
             <span>Login</span>
           </button>
         </div>
@@ -83,18 +82,13 @@ export default {
         }
 
         if (this.user.username && this.user.password) {
-          this.$store.dispatch('auth/login', this.user).then(
-            () => {
-              this.$router.push('/profile');
-            },
-            error => {
-              this.loading = false;
-              this.message =
-                (error.response && error.response.data.message) ||
-                error.message ||
-                error.toString();
-            }
-          );
+          let user = this.user;
+          let socket = this.$socket;
+          this.$store.dispatch('auth/login', { socket, user }).then(
+            async () => {
+              await new Promise(r => setTimeout(r, 100));
+              //this.$router.push('/profile');
+          });
         }
       });
     }

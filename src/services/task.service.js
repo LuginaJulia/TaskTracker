@@ -1,37 +1,34 @@
-import http from "../http-common";
-import authHeader from "./auth-header";
-
 class TaskDataService {
-  getAll() {
-    return http.get('/tasks');
+  getAll(socket) {
+    socket.client.emit("tasks_all", { filter: '' });
   }
 
-  get(id) {
-    return http.get(`/tasks/${id}`, { headers: authHeader() });
+  get(id, socket) {
+    socket.client.emit("task", { id: id });
   }
 
-  create(data) {
-    return http.post("/tasks", data, { headers: authHeader() });
+  create(data, socket) {
+    socket.client.emit("taskCreate", { body: data });
   }
 
-  update(id, data) {
-    return http.put(`/tasks/${id}`, data, { headers: authHeader() });
+  update(data, socket) {
+    socket.client.emit("taskUpdate", { body: data });
   }
 
-  delete(id) {
-    return http.delete(`/tasks/${id}`, { headers: authHeader() });
+  delete(id, socket) {
+    socket.client.emit("taskDelete", { id: id });
   }
 
-  deleteAll() {
-    return http.delete(`/tasks`, { headers: authHeader() });
+  deleteAll(socket) {
+    socket.client.emit("tasksDelete");
   }
 
-  findExecuted() {
-    return http.get('/tasks/executed');
+  findExecuted(socket) {
+    socket.client.emit('tasks_all', { filter: 'executed' });
   }
 
-  findUnexecuted() {
-    return http.get('/tasks/unexecuted');
+  findUnexecuted(socket) {
+    socket.client.emit('tasks_all', { filter: 'unexecuted' });
   }
 }
 

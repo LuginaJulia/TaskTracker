@@ -5,51 +5,52 @@ const User = db.users;
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
 
-exports.signup = (req, res) => {
-  User.create({
-    username: req.body.username,
-    email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 8)
-  })
-  .then(() => {
-    res.send({ message: "User was registered successfully!" })
-  })
-  .catch(err => {
-    res.status(500).send({ message: err.message });
+exports.signup = (req) => {
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      User.create({
+        username: req.username,
+        email: req.email,
+        password: bcrypt.hashSync(req.password, 8)
+      })
+      .then(() => {
+        return { message: "User was registered successfully!", status: 200 }
+      })
+      .catch(err => {
+        return { message: err.message, status: 500 }
+      })
+    );}
   });
 };
 
-exports.signin = (req, res) => {
-  User.findOne({ where: { username: req.body.username  } })
-  .then(user => {
-    if (!user) {
-      return res.status(404).send({ message: "User Not found." });
-    }
+exports.signin = (req) => {
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      User.findOne({ where: { username: req.username  } })
+      .then(user => {
+        if (!user) {
+          return { message: "User Not found.", status: 400 };
+        }
 
-    var passwordIsValid = bcrypt.compareSync(
-      req.body.password,
-      user.password
-    );
+        var passwordIsValid = bcrypt.compareSync(req.password, user.password);
+        if (!passwordIsValid) {
+          return { accessToken: null, message: "Invalid Password!", status: 401 };
+        }
 
-    if (!passwordIsValid) {
-      return res.status(401).send({
-        accessToken: null,
-        message: "Invalid Password!"
-      });
-    }
-
-    var token = jwt.sign({ id: user.id }, config.secret, {
-      expiresIn: 86400 // 24 hours
-    });
-
-    res.status(200).send({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      accessToken: token
-    });
-  })
-  .catch(err => {
-    res.status(500).send({ message: err.message });
+        var token = jwt.sign({ id: user.id }, config.secret, { expiresIn: 86400 });
+        return { 
+          user: {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            accessToken: token
+          },
+          status: 200,
+        };
+      })
+      .catch(err => {
+        return { message: err.message, status: 500 }
+      })
+    );}
   });
 }

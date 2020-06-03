@@ -15,7 +15,7 @@
       <button class="m-3 btn btn-sm btn-warning" @click="unexecutedTasks">
         Unexecuted tasks
       </button>
-       <button class="m-3 btn btn-sm btn-light" @click="allTasks">
+       <button class="m-3 btn btn-sm btn-light" @click="retrieveTasks">
         Reset filter
       </button>
       <button class="m-3 btn btn-sm btn-danger" @click="removeAllTasks">
@@ -82,15 +82,10 @@ export default {
     message: "",
     successful: ""
   }),
+
   methods: {
     retrieveTasks() {
-      TaskDataService.getAll()
-        .then(response => {
-          this.tasks = response.data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
+      TaskDataService.getAll(this.$socket);
     },
 
     refreshList() {
@@ -98,63 +93,19 @@ export default {
     },
 
     removeAllTasks() {
-      TaskDataService.deleteAll().then(
-        () => { this.refreshList(); },
-        error => {
-          this.message =
-            (error.response && error.response.data.message) ||
-            error.message ||
-            error.toString();
-          this.successful = false;
-        }
-      )
+      TaskDataService.deleteAll(this.$socket);
     },
     
     executedTasks() {
-      TaskDataService.findExecuted()
-        .then(response => {
-          this.tasks = response.data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
+      TaskDataService.findExecuted(this.$socket);
     },
 
     unexecutedTasks() {
-      TaskDataService.findUnexecuted()
-        .then(response => {
-          this.tasks = response.data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
-    },
-    
-    allTasks() {
-      this.retrieveTasks();
-    },
-
-    searchTitle() {
-      TaskDataService.findByTitle(this.name)
-        .then(response => {
-          this.tasks = response.data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
+      TaskDataService.findUnexecuted(this.$socket);
     },
 
     deleteTask(task) {
-      TaskDataService.delete(task.id).then(
-        () => { this.refreshList(); },
-        error => {
-          this.message =
-            (error.response && error.response.data.message) ||
-            error.message ||
-            error.toString();
-          this.successful = false;
-        }
-      )
+      TaskDataService.delete(task.id, this.$socket);
     },
 
     dateFormat(date){
@@ -163,32 +114,33 @@ export default {
 
     reversed(task) {
       task.status = false;
-      this.$store.dispatch('task/update', task).then(
-        () => { this.refreshList(); },
-        error => {
-          this.message =
-            (error.response && error.response.data.message) ||
-            error.message ||
-            error.toString();
-          this.successful = false;
-        }
-      )
+      let socket = this.$socket;
+      this.$store.dispatch('task/update', { socket, task });
     },
 
     checked(task) {
       task.status = true;
-      this.$store.dispatch('task/update', task).then(
-        () => { this.refreshList(); },
-        error => {
-          this.message =
-            (error.response && error.response.data.message) ||
-            error.message ||
-            error.toString();
-          this.successful = false;
-        }
-      )
+      let socket = this.$socket;
+      this.$store.dispatch('task/update', { socket, task });
     }
   },
+
+  sockets: {
+    tasksList: function(response) {
+      this.successful = (response.status == 200);
+      if (response.status == 200) {
+        this.tasks = response.data;
+      }
+      else {
+        this.message = response.message;
+      }
+    },
+    executed: function(response) {
+      this.successful = (response.status == 200);
+      this.successful ? this.refreshList() : this.message = response.message;
+    }
+  },
+
   mounted() {
     this.retrieveTasks();
   }

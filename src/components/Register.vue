@@ -94,19 +94,9 @@ export default {
       this.submitted = true;
       this.$validator.validate().then(isValid => {
         if (isValid) {
-          this.$store.dispatch('auth/register', this.user).then(
-            data => {
-              this.message = data.message;
-              this.successful = true;
-            },
-            error => {
-              this.message =
-                (error.response && error.response.data.message) ||
-                error.message ||
-                error.toString();
-              this.successful = false;
-            }
-          );
+          let user = this.user;
+          let socket = this.$socket;
+          this.$store.dispatch('auth/register', { socket, user });
         }
       });
     }

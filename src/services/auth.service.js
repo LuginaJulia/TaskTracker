@@ -1,16 +1,8 @@
-import http from "../http-common";
-
 class AuthService {
-  login(user) {
-    return http.post('auth/signin', {
+  login(socket, user) {
+    socket.client.emit("signin", {
       username: user.username,
       password: user.password
-    })
-    .then(response => {
-      if (response.data.accessToken) {
-        localStorage.setItem('user', JSON.stringify(response.data));
-      }
-      return response.data;
     });
   }
 
@@ -18,8 +10,8 @@ class AuthService {
     localStorage.removeItem('user');
   }
 
-  register(user) {
-    return http.post('auth/signup', {
+  register(socket, user) {
+    socket.client.emit("signup", {
       username: user.username,
       email: user.email,
       password: user.password
