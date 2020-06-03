@@ -10,23 +10,28 @@
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link v-if="currentUser" to="/tasks/new" class="nav-link">
+            <router-link to="/tasks/new" class="nav-link">
               <font-awesome-icon icon="plus" /> New task
             </router-link>
           </li>
         </ul>
       </div>
       <div v-if="!currentUser" class="navbar-nav ml-auto">
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <router-link to="/register" class="nav-link">
             Sign Up <font-awesome-icon icon="user-plus" />
           </router-link>
-        </li>
+        </li> -->
         <li class="nav-item">
+          <router-link to="/profile" class="nav-link">
+            TEST MODE <font-awesome-icon icon="user" />
+          </router-link>
+        </li>
+        <!-- <li class="nav-item">
           <router-link to="/login" class="nav-link">
             Login <font-awesome-icon icon="sign-in-alt" />
           </router-link>
-        </li>
+        </li> -->
       </div>
       <div v-if="currentUser" class="navbar-nav ml-auto">
         <li class="nav-item">
@@ -34,11 +39,11 @@
             {{ currentUser.username }} <font-awesome-icon icon="user" />
           </router-link>
         </li>
-        <li class="nav-item">
+        <!-- <li class="nav-item">
           <a class="nav-link" href @click.prevent="logOut">
             LogOut <font-awesome-icon icon="sign-out-alt" />
           </a>
-        </li>
+        </li> -->
       </div>
     </nav>
     <div class="container mt-3">

@@ -32,18 +32,18 @@ const server = app.listen(PORT, () => console.log(`Server is running on port ${P
 var io = require('socket.io')(server);
 
 const tasksController = require("./app/controllers/task.controller.js");
-const authController = require("./app/controllers/auth.controller.js");
+// const authController = require("./app/controllers/auth.controller.js");
 
 io.on('connection', function(socket) {
   console.log('User connected');
 
-  socket.on('signup', function(params) {
-    authController.signup(params).then(res => { io.emit("executed", res ) });
-  });
+  // socket.on('signup', function(params) {
+  //   authController.signup(params).then(res => { io.emit("executed", res ) });
+  // });
 
-  socket.on('signin', function(params) {
-    authController.signin(params).then(res => { io.emit("executed", res ) });
-  });
+  // socket.on('signin', function(params) {
+  //   authController.signin(params).then(res => { io.emit("executed", res ) });
+  // });
 
   socket.on('tasks_all', function(params) {
     switch (params.filter) {
