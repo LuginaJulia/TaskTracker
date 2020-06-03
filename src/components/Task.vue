@@ -82,7 +82,7 @@ export default {
   methods: {
     getTask(id) {
       let socket = this.$socket;
-      this.$store.dispatch('task/find', { socket, id} ).then(
+      this.$store.dispatch('task/find', { socket, id }).then(
          async () => {
           await new Promise(r => setTimeout(r, 100));
           this.task = this.$store.state.task.task;
@@ -102,18 +102,13 @@ export default {
       this.submitted = true;
       this.$validator.validate().then(isValid => {
         if (isValid) {
-          this.$store.dispatch('task/create', this.task).then(
-            () => {
-              this.$router.push('/tasks');
-            },
-            error => {
-              this.message =
-                (error.response && error.response.data.message) ||
-                error.message ||
-                error.toString();
-              this.successful = false;
-            }
-          )
+          let socket = this.$socket;
+          let task = this.task;
+          this.$store.dispatch('task/create', { socket, task }).then(
+            async () => {
+              await new Promise(r => setTimeout(r, 100));
+              //this.$router.push('/tasks');
+          });
         }
       })
     },
@@ -122,18 +117,13 @@ export default {
       this.submitted = true;
       this.$validator.validate().then(isValid => {
         if (isValid) {
-          this.$store.dispatch('task/update', this.task).then(
-            () => {
-              this.$router.push('/tasks');
-            },
-            error => {
-              this.message =
-                (error.response && error.response.data.message) ||
-                error.message ||
-                error.toString();
-              this.successful = false;
-            }
-          )
+          let socket = this.$socket;
+          let task = this.task;
+          this.$store.dispatch('task/update', { socket, task }).then(
+            async () => {
+              await new Promise(r => setTimeout(r, 100));
+              //this.$router.push('/tasks');
+          });
         }
       })
     },
@@ -150,7 +140,6 @@ export default {
       var vm = this.task;
 
       reader.onload = (e) => {
-        console.log(e);
         vm.file = e.target.result;
       };
       reader.readAsDataURL(file);

@@ -7,29 +7,13 @@ export const task = {
   namespaced: true,
   state: initialState,
   actions: {
-    create({ commit }, task) {
-      return TaskService.create(task).then(
-        response => {
-          commit('success');
-          return Promise.resolve(response.data);
-        },
-        error => {
-          commit('failure');
-          return Promise.reject(error);
-        }
-      );
+    create({ commit }, { socket, task }) {
+      TaskService.create(task, socket)
+      commit('success');
     },
-    update({ commit }, task) {
-      return TaskService.update(task.id, task).then(
-        response => {
-          commit('success');
-          return Promise.resolve(response.data);
-        },
-        error => {
-          commit('failure');
-          return Promise.reject(error);
-        }
-      );
+    update({ commit }, { socket, task }) {
+      TaskService.update(task, socket);
+      commit('success');
     },
     find({ commit }, { socket, id }) {
       TaskService.get(id, socket);
@@ -49,7 +33,6 @@ export const task = {
         file: task.file, 
         date: task.date, 
         status: task.status });
-      console.log('success');
     },
     findFailure(state) {
       state.status.success = false;

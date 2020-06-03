@@ -26,19 +26,24 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const db = require("./app/models");
 db.sequelize.sync();
 
-// require("./app/routes/task.routes")(app);
-require('./app/routes/auth.routes')(app);
-// require('./app/routes/user.routes')(app);
-
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => console.log(`Server is running on port ${PORT}.`));
 
 var io = require('socket.io')(server);
 
 const tasksController = require("./app/controllers/task.controller.js");
+const authController = require("./app/controllers/auth.controller.js");
 
 io.on('connection', function(socket) {
   console.log('User connected');
+
+  socket.on('signup', function(params) {
+    authController.signup(params);
+  });
+
+  socket.on('signin', function(params) {
+    authController.signin(params).then(res => { io.emit("signinResponse", res ) });;
+  });
 
   socket.on('tasks_all', function(params) {
     switch (params.filter) {
@@ -55,5 +60,21 @@ io.on('connection', function(socket) {
 
   socket.on('task', function(params) {
     tasksController.findOne(params).then(res => { io.emit("taskForm", res ) });
-  })
+  });
+
+  socket.on('taskUpdate', function(params) {
+    tasksController.update(params).then(res => { io.emit("response", res ) });
+  });
+
+  socket.on('taskCreate', function(params) {
+    tasksController.create(params).then(res => { io.emit("response", res ) });
+  });
+
+  socket.on('taskDelete', function(params) {
+    tasksController.delete(params.id);
+  });
+
+  socket.on('tasksDelete', function() {
+    tasksController.deleteAll();
+  });
 })

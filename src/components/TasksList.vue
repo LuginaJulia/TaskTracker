@@ -73,7 +73,6 @@
 
 import TaskDataService from "../services/task.service";
 import moment from 'moment';
-import { EventBus } from '../main';
 
 export default {
   name: "tasks-list",
@@ -83,26 +82,9 @@ export default {
     message: "",
     successful: ""
   }),
-  // sockets: {
-  //   connect: function () {
-  //     console.log('socket connected')
-  //   },
-  //   customEmit: function () {
-  //     console.log('this method was fired by the socket server. eg: io.emit("customEmit", data)')
-  //   }
-  // },
-  // sockets:{
-  //   connect() {
-  //     console.log("socket connected...")
-  //   },
-  //   disconnected() {
-  //     console.log("socket disconnected...")
-  //   }
-  // },
+
   methods: {
     retrieveTasks() {
-      console.log('taskList');
-      console.log(EventBus);
       TaskDataService.getAll(this.$socket);
     },
 
@@ -111,16 +93,11 @@ export default {
     },
 
     removeAllTasks() {
-      TaskDataService.deleteAll().then(
-        () => { this.refreshList(); },
-        error => {
-          this.message =
-            (error.response && error.response.data.message) ||
-            error.message ||
-            error.toString();
-          this.successful = false;
-        }
-      )
+      TaskDataService.deleteAll(this.$socket).then(
+        async () => {
+          await new Promise(r => setTimeout(r, 100));
+          this.refreshList();
+      });
     },
     
     executedTasks() {
@@ -135,27 +112,12 @@ export default {
       this.retrieveTasks();
     },
 
-    searchTitle() {
-      TaskDataService.findByTitle(this.name)
-        .then(response => {
-          this.tasks = response.data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
-    },
-
     deleteTask(task) {
-      TaskDataService.delete(task.id).then(
-        () => { this.refreshList(); },
-        error => {
-          this.message =
-            (error.response && error.response.data.message) ||
-            error.message ||
-            error.toString();
-          this.successful = false;
-        }
-      )
+      TaskDataService.delete(task.id, this.$socket).then(
+        async () => {
+        await new Promise(r => setTimeout(r, 100));
+        this.refreshList();
+      });
     },
 
     dateFormat(date){
@@ -164,35 +126,27 @@ export default {
 
     reversed(task) {
       task.status = false;
-      this.$store.dispatch('task/update', task).then(
-        () => { this.refreshList(); },
-        error => {
-          this.message =
-            (error.response && error.response.data.message) ||
-            error.message ||
-            error.toString();
-          this.successful = false;
-        }
-      )
+      let socket = this.$socket;
+      this.$store.dispatch('task/update', { socket, task }).then(
+        async () => {
+          await new Promise(r => setTimeout(r, 100));
+          this.refreshList();
+      });
     },
 
     checked(task) {
       task.status = true;
-      this.$store.dispatch('task/update', task).then(
-        () => { this.refreshList(); },
-        error => {
-          this.message =
-            (error.response && error.response.data.message) ||
-            error.message ||
-            error.toString();
-          this.successful = false;
-        }
-      )
+      let socket = this.$socket;
+      this.$store.dispatch('task/update', { socket, task }).then(
+        async () => {
+          await new Promise(r => setTimeout(r, 100));
+          this.refreshList();
+      });
     }
   },
+
   mounted() {
     this.retrieveTasks();
-    
   }
 };
 </script>

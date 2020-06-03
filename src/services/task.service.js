@@ -1,5 +1,5 @@
-import http from "../http-common";
-import authHeader from "./auth-header";
+// import http from "../http-common";
+// import authHeader from "./auth-header";
 
 class TaskDataService {
   getAll(socket) {
@@ -11,26 +11,30 @@ class TaskDataService {
 
   get(id, socket) {
     socket.client.emit("task", { id: id });
-    // socket.$subscribe('taskForm', function(response) {
-    //   this.task = response.data;
-    // });
-    //return http.get(`/tasks/${id}`, { headers: authHeader() });
   }
 
-  create(data) {
-    return http.post("/tasks", data, { headers: authHeader() });
+  create(data, socket) {
+    socket.client.emit("taskCreate", { body: data });
+    socket.$subscribe('response', function(response) {
+      this.message = response.message;
+      this.successful = (response.status == 200)
+    });
   }
 
-  update(id, data) {
-    return http.put(`/tasks/${id}`, data, { headers: authHeader() });
+  update(data, socket) {
+    socket.client.emit("taskUpdate", { body: data });
+    socket.$subscribe('response', function(response) {
+      this.message = response.message;
+      this.successful = (response.status == 200)
+    });
   }
 
-  delete(id) {
-    return http.delete(`/tasks/${id}`, { headers: authHeader() });
+  delete(id, socket) {
+    socket.client.emit("taskDelete", { id: id });
   }
 
-  deleteAll() {
-    return http.delete(`/tasks`, { headers: authHeader() });
+  deleteAll(socket) {
+    socket.client.emit("tasksDelete");
   }
 
   findExecuted(socket) {
