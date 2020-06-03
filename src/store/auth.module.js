@@ -10,7 +10,7 @@ export const auth = {
   state: initialState,
   actions: {
     login({ commit }, { socket, user }) {
-      AuthService.login(socket, user)
+      AuthService.login(socket, user);
       commit('loginSuccess', user);
     },
     logout({ commit }) {

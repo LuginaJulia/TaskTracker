@@ -38,11 +38,11 @@ io.on('connection', function(socket) {
   console.log('User connected');
 
   socket.on('signup', function(params) {
-    authController.signup(params);
+    authController.signup(params).then(res => { io.emit("executed", res ) });
   });
 
   socket.on('signin', function(params) {
-    authController.signin(params).then(res => { io.emit("signinResponse", res ) });;
+    authController.signin(params).then(res => { io.emit("executed", res ) });
   });
 
   socket.on('tasks_all', function(params) {
@@ -59,22 +59,22 @@ io.on('connection', function(socket) {
   });
 
   socket.on('task', function(params) {
-    tasksController.findOne(params).then(res => { io.emit("taskForm", res ) });
+    tasksController.findOne(params).then(res => { io.emit("task", res ) });
   });
 
   socket.on('taskUpdate', function(params) {
-    tasksController.update(params).then(res => { io.emit("response", res ) });
+    tasksController.update(params).then(res => { io.emit("executed", res ) });
   });
 
   socket.on('taskCreate', function(params) {
-    tasksController.create(params).then(res => { io.emit("response", res ) });
+    tasksController.create(params).then(res => { io.emit("executed", res ) });
   });
 
   socket.on('taskDelete', function(params) {
-    tasksController.delete(params.id);
+    tasksController.delete(params.id).then(res => { io.emit("executed", res ) });;;
   });
 
   socket.on('tasksDelete', function() {
-    tasksController.deleteAll();
+    tasksController.deleteAll().then(res => { io.emit("executed", res ) });;
   });
 })

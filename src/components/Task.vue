@@ -82,20 +82,7 @@ export default {
   methods: {
     getTask(id) {
       let socket = this.$socket;
-      this.$store.dispatch('task/find', { socket, id }).then(
-         async () => {
-          await new Promise(r => setTimeout(r, 100));
-          this.task = this.$store.state.task.task;
-        },
-        async error => {
-          await new Promise(r => setTimeout(r, 100));
-          this.message =
-            (error.response && error.response.data.message) ||
-            error.message ||
-            error.toString();
-          this.successful = false;
-        }
-      )
+      this.$store.dispatch('task/find', { socket, id });
     },
 
     saveTask() {
@@ -104,11 +91,7 @@ export default {
         if (isValid) {
           let socket = this.$socket;
           let task = this.task;
-          this.$store.dispatch('task/create', { socket, task }).then(
-            async () => {
-              await new Promise(r => setTimeout(r, 100));
-              //this.$router.push('/tasks');
-          });
+          this.$store.dispatch('task/create', { socket, task });
         }
       })
     },
@@ -119,11 +102,7 @@ export default {
         if (isValid) {
           let socket = this.$socket;
           let task = this.task;
-          this.$store.dispatch('task/update', { socket, task }).then(
-            async () => {
-              await new Promise(r => setTimeout(r, 100));
-              //this.$router.push('/tasks');
-          });
+          this.$store.dispatch('task/update', { socket, task });
         }
       })
     },
@@ -147,6 +126,17 @@ export default {
 
     removeImage: function () {
       this.task.file = '';
+    }
+  },
+
+  sockets: {
+    executed: function(response) {
+      this.successful = (response.status == 200);
+      this.successful ? this.$router.push('/tasks') : this.message = response.message;
+    },
+    task: function(response) {
+      this.successful = (response.status == 200);
+      this.successful ? this.task = response.data : this.message = response.message;
     }
   },
   mounted() {

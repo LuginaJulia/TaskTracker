@@ -34,8 +34,8 @@ exports.findAll = () => {
   return Promise.resolve({ 
     then: function(onFulfill, onReject) { onFulfill(
       Task.findAll()
-        .then(data => { return { data: data } })
-        .catch(err => { return { error: err.message || "Some error occurred while retrieving tasks." } }) 
+        .then(data => { return { status: 200, data: data } })
+        .catch(err => { return { status: err.status || 400, message: err.message || "Some error occurred while retrieving tasks." } }) 
     );}
   });
 };
@@ -44,8 +44,8 @@ exports.findExecuted = () => {
   return Promise.resolve({ 
     then: function(onFulfill, onReject) { onFulfill(
       Task.findAll({ where: { status: true } })
-        .then(data => { return { data: data } })
-        .catch(err => { return { error: err.message || "Some error occurred while retrieving tasks." } }) 
+      .then(data => { return { status: 200, data: data } })
+      .catch(err => { return { status: err.status || 400, message: err.message || "Some error occurred while retrieving tasks." } }) 
     );}
   });
 };
@@ -54,8 +54,8 @@ exports.findUnexecuted = () => {
   return Promise.resolve({ 
     then: function(onFulfill, onReject) { onFulfill(
       Task.findAll({ where: { status: false } })
-        .then(data => { return { data: data } })
-        .catch(err => { return { error: err.message || "Some error occurred while retrieving tasks." } }) 
+        .then(data => { return { status: 200, data: data } })
+        .catch(err => { return { status: err.status || 400, message: err.message || "Some error occurred while retrieving tasks." } }) 
     );}
   });
 };
@@ -66,8 +66,8 @@ exports.findOne = (params) => {
   return Promise.resolve({ 
     then: function(onFulfill, onReject) { onFulfill(
       Task.findByPk(id)
-        .then(data => { return { data: data } })
-        .catch(err => { return { error: "Error retrieving Task with id=" + id } }) 
+        .then(data => { return data ? { status: 200, data: data } : { status: 400, message: "Error retrieving Task with id=" + id }})
+        .catch(err => { return { status: err.status || 400, message: err.message || "Error retrieving Task with id=" + id } }) 
     );}
   });
 };
@@ -92,13 +92,22 @@ exports.update = (req, res) => {
 
 // Delete a Task with the specified id in the request
 exports.delete = (id) => {
-  Task.destroy({ where: { id: id } });
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      Task.destroy({ where: { id: id } })
+        .then(() => { return { status: 200, message: "Task was deleted." } })
+        .catch(err => { return { status: err.status || 400, message: err.message || "Some error occurred while retrieving tasks." } }) 
+    );}
+  });
 };
 
 // Delete all Tasks from the database.
 exports.deleteAll = () => {
-  Task.destroy({
-    where: {},
-    truncate: false
-  })
+  return Promise.resolve({ 
+    then: function(onFulfill, onReject) { onFulfill(
+      Task.destroy({ where: {}, truncate: false })
+        .then(() => { return { status: 200, message: "Task was deleted." } })
+        .catch(err => { return { status: err.status || 400, message: err.message || "Some error occurred while retrieving tasks." } }) 
+    );}
+  });
 };

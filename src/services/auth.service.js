@@ -4,12 +4,6 @@ class AuthService {
       username: user.username,
       password: user.password
     });
-    socket.$subscribe('signinResponse', function(response) {
-      this.message = response.message;
-      if (response.status == 200) {
-        localStorage.setItem('user', JSON.stringify(response.user));
-      }
-    });
   }
 
   logout() {

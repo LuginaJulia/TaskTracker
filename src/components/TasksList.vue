@@ -15,7 +15,7 @@
       <button class="m-3 btn btn-sm btn-warning" @click="unexecutedTasks">
         Unexecuted tasks
       </button>
-       <button class="m-3 btn btn-sm btn-light" @click="allTasks">
+       <button class="m-3 btn btn-sm btn-light" @click="retrieveTasks">
         Reset filter
       </button>
       <button class="m-3 btn btn-sm btn-danger" @click="removeAllTasks">
@@ -93,11 +93,7 @@ export default {
     },
 
     removeAllTasks() {
-      TaskDataService.deleteAll(this.$socket).then(
-        async () => {
-          await new Promise(r => setTimeout(r, 100));
-          this.refreshList();
-      });
+      TaskDataService.deleteAll(this.$socket);
     },
     
     executedTasks() {
@@ -107,17 +103,9 @@ export default {
     unexecutedTasks() {
       TaskDataService.findUnexecuted(this.$socket);
     },
-    
-    allTasks() {
-      this.retrieveTasks();
-    },
 
     deleteTask(task) {
-      TaskDataService.delete(task.id, this.$socket).then(
-        async () => {
-        await new Promise(r => setTimeout(r, 100));
-        this.refreshList();
-      });
+      TaskDataService.delete(task.id, this.$socket);
     },
 
     dateFormat(date){
@@ -127,21 +115,29 @@ export default {
     reversed(task) {
       task.status = false;
       let socket = this.$socket;
-      this.$store.dispatch('task/update', { socket, task }).then(
-        async () => {
-          await new Promise(r => setTimeout(r, 100));
-          this.refreshList();
-      });
+      this.$store.dispatch('task/update', { socket, task });
     },
 
     checked(task) {
       task.status = true;
       let socket = this.$socket;
-      this.$store.dispatch('task/update', { socket, task }).then(
-        async () => {
-          await new Promise(r => setTimeout(r, 100));
-          this.refreshList();
-      });
+      this.$store.dispatch('task/update', { socket, task });
+    }
+  },
+
+  sockets: {
+    tasksList: function(response) {
+      this.successful = (response.status == 200);
+      if (response.status == 200) {
+        this.tasks = response.data;
+      }
+      else {
+        this.message = response.message;
+      }
+    },
+    executed: function(response) {
+      this.successful = (response.status == 200);
+      this.successful ? this.refreshList() : this.message = response.message;
     }
   },
 
