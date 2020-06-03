@@ -86,7 +86,7 @@ export default {
     retrieveTasks() {
       TaskDataService.getAll()
         .then(response => {
-          this.tasks = response.data;
+          this.tasks = response.data.data.tasks;
         })
         .catch(e => {
           console.log(e);
@@ -111,9 +111,9 @@ export default {
     },
     
     executedTasks() {
-      TaskDataService.findExecuted()
+      TaskDataService.findByFilter(true)
         .then(response => {
-          this.tasks = response.data;
+          this.tasks = response.data.data.filteredTasks;
         })
         .catch(e => {
           console.log(e);
@@ -121,9 +121,9 @@ export default {
     },
 
     unexecutedTasks() {
-      TaskDataService.findUnexecuted()
+      TaskDataService.findByFilter(false)
         .then(response => {
-          this.tasks = response.data;
+          this.tasks = response.data.data.filteredTasks;
         })
         .catch(e => {
           console.log(e);

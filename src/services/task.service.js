@@ -3,15 +3,54 @@ import authHeader from "./auth-header";
 
 class TaskDataService {
   getAll() {
-    return http.get('/tasks');
+    let data = { query: 
+      `{tasks{
+        id
+        name
+        description
+        file
+        date
+        status
+      }}`
+    }
+    return http.post('/', data);
   }
 
   get(id) {
-    return http.get(`/tasks/${id}`, { headers: authHeader() });
+    let dataql = { query: 
+      `{task(id: ${id}){
+          id
+          name
+          description
+          file
+          date
+          status
+      }}`
+    }
+    return http.post(`/tasks/${id}`, dataql);
   }
 
   create(data) {
-    return http.post("/tasks", data, { headers: authHeader() });
+    let dataql = {
+      query: `mutation($name: String!, $description: String, $date: String, $status: Boolean, $file: String){
+        create(name: $name, description: $description, date: $date, status: $status, file: $file){
+          id
+          name
+          description
+          date
+          file
+          status
+        }
+      }`,
+      variables: {
+        name: data.name,
+        description: data.description,
+        file: data.file,
+        status: data.status,
+        date: data.date
+      }
+    }
+    return http.post("/tasks", dataql);
   }
 
   update(id, data) {
@@ -26,12 +65,18 @@ class TaskDataService {
     return http.delete(`/tasks`, { headers: authHeader() });
   }
 
-  findExecuted() {
-    return http.get('/tasks/executed');
-  }
-
-  findUnexecuted() {
-    return http.get('/tasks/unexecuted');
+  findByFilter(filter) {
+    let data = { query: 
+      `{filteredTasks(filter: ${filter}){
+          id
+          name
+          description
+          file
+          date
+          status
+      }}`
+    }
+    return http.post('', data);
   }
 }
 

@@ -11,7 +11,7 @@ export const task = {
       return TaskService.create(task).then(
         response => {
           commit('success');
-          return Promise.resolve(response.data);
+          return Promise.resolve(response.data.data.task);
         },
         error => {
           commit('failure');
@@ -23,7 +23,7 @@ export const task = {
       return TaskService.update(task.id, task).then(
         response => {
           commit('success');
-          return Promise.resolve(response.data);
+          return Promise.resolve(response.data.data.task);
         },
         error => {
           commit('failure');
@@ -34,7 +34,7 @@ export const task = {
     find({ commit }, id) {
       return TaskService.get(id).then(
         response => {
-          commit('findSuccess', response.data);
+          commit('findSuccess', response.data.data.task);
           return Promise.resolve(response.data);
         },
         error => {
@@ -46,7 +46,6 @@ export const task = {
   },
   mutations: {
     findSuccess(state, task) {
-      console.log(task);
       state.status.success = true;
       state.task = new Task({ 
         id: task.id, 
