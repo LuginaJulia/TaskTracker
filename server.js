@@ -7,44 +7,6 @@ const path = require('path')
 const db = require("./app/models");
 db.sequelize.sync();
 
-
-var express_graphql = require('express-graphql');
-var { buildSchema } = require('graphql');
-// GraphQL schema
-var schema = buildSchema(`
-    type Query {
-        filteredTasks(filter: Boolean!): [Task]
-        tasks: [Task]
-        task(id: Int!): Task
-        message: String
-    }
-    type Mutation {
-        create(name: String!, description: String, date: String, status: Boolean, file: String): Task
-        update(id: Int!, name: String!, description: String, date: String, status: Boolean, file: String): String
-        delete(id: Int!): String
-        deleteAll: String
-    }
-    type Task {
-        id: Int
-        name: String
-        description: String
-        status: Boolean
-        file: String
-        date: String
-    }
-`);
-var taskController = require("./app/controllers/task.controller");
-
-// Root resolver
-var root = {
-  task: taskController.findOne,
-  filteredTasks: taskController.findByFilter,
-  tasks: taskController.findAll,
-  update: taskController.update,
-  create: taskController.create,
-  delete: taskController.delete,
-  deleteAll: taskController.deleteAll
-};
 // Create an express server and a GraphQL endpoint
 var app = express();
 var corsOptions = {
@@ -56,11 +18,8 @@ const staticFileMiddleware = express.static(path.join(__dirname + '/dist'));
 app.use(staticFileMiddleware);
 
 app.use(cors(corsOptions));
-app.use('/api', express_graphql({
-  schema: schema,
-  rootValue: root,
-  graphiql: true
-}));
+
+require("./app/routes/task.routes")(app);
 
 const bodyParser = require("body-parser");
 

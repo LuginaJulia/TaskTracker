@@ -32,7 +32,7 @@ class TaskDataService {
 
   create(data) {
     let dataql = {
-      query: `mutation($name: String!, $description: String, $date: String, $status: Boolean, $file: String){
+      query: `mutation($name: String!, $description: String, $date: Date, $status: Boolean, $file: String){
         create(name: $name, description: $description, date: $date, status: $status, file: $file){
           id
           name
@@ -50,19 +50,45 @@ class TaskDataService {
         date: data.date
       }
     }
-    return http.post("/tasks", dataql);
+    return http.post("/tasks", dataql, { headers: authHeader() });
   }
 
-  update(id, data) {
-    return http.put(`/tasks/${id}`, data, { headers: authHeader() });
+  update(data) {
+    let dataql = {
+      query: `mutation($id: Int!, $name: String!, $description: String, $date: Date, $status: Boolean, $file: String){
+        update(id: $id, name: $name, description: $description, date: $date, status: $status, file: $file)
+      }`,
+      variables: {
+        id: data.id,
+        name: data.name,
+        description: data.description,
+        file: data.file,
+        status: data.status,
+        date: data.date
+      }
+    }
+    return http.post('/', dataql);
   }
 
   delete(id) {
-    return http.delete(`/tasks/${id}`, { headers: authHeader() });
+    let dataql = {
+      query: `mutation($id: Int!) {
+        delete(id: $id)
+      }`,
+      variables: {
+        id: id
+      }
+    }
+    return http.post('/', dataql);
   }
 
   deleteAll() {
-    return http.delete(`/tasks`, { headers: authHeader() });
+    let dataql = {
+      query: `mutation{
+        deleteAll
+      }`
+    }
+    return http.post('/', dataql, { headers: authHeader() });
   }
 
   findByFilter(filter) {

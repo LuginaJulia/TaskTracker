@@ -134,16 +134,6 @@ export default {
       this.retrieveTasks();
     },
 
-    searchTitle() {
-      TaskDataService.findByTitle(this.name)
-        .then(response => {
-          this.tasks = response.data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
-    },
-
     deleteTask(task) {
       TaskDataService.delete(task.id).then(
         () => { this.refreshList(); },

@@ -20,7 +20,7 @@ export const task = {
       );
     },
     update({ commit }, task) {
-      return TaskService.update(task.id, task).then(
+      return TaskService.update(task).then(
         response => {
           commit('success');
           return Promise.resolve(response.data.data.task);
