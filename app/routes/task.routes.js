@@ -1,32 +1,31 @@
-const { authJwt } = require("../middleware");
-const tasks = require("../controllers/task.controller.js");
+const taskController = require("../controllers/task.controller.js");
+var express_graphql = require('express-graphql');
+var schema = require("../schema/task.schema")();
 
 module.exports = app => {
-  app.use(function(req, res, next) {
-    res.header(
-      "Access-Control-Allow-Headers",
-      "x-access-token, Origin, Content-Type, Accept"
-    );
-    next();
-  });
-
-  var router = require("express").Router();
-
-  router.get("/executed", tasks.findExecuted);
-
-  router.get("/unexecuted", tasks.findUnexecuted);
-  
-  router.get('/', tasks.findAll);
-  
-  router.get("/:id", tasks.findOne);
-  
-  router.post('/', [authJwt.verifyToken], tasks.create);
-  
-  router.put("/:id", [authJwt.verifyToken], tasks.update);
-  
-  router.delete("/:id", [authJwt.verifyToken], tasks.delete);
-  
-  router.delete("/", [authJwt.verifyToken], tasks.deleteAll);
-
-  app.use('/api/tasks', router);
+  var api = {
+    task: taskController.findOne,
+    filteredTasks: taskController.findByFilter,
+    tasks: taskController.findAll,
+    update: taskController.update,
+    create: taskController.create,
+    delete: taskController.delete,
+    deleteAll: taskController.deleteAll,
+    Date: {
+      __serialize(value) {
+        return value;
+      },
+      __parseValue(value) {
+        return value;
+      },
+      __parseLiteral(ast) {
+        return JSON.parse(JSON.stringify(ast)).value;
+      }
+    }
+  };
+  app.use('/api', express_graphql({
+    schema: schema,
+    rootValue: api,
+    graphiql: true
+  }));
 };
